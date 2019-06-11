@@ -1,7 +1,7 @@
-package main
+package p24
 
 // generate this with help of `goldprop/cmd/areagen`
-var areas = map[string]int{
+var Areas = map[string]int{
 	"Adriaanse":                  8128,
 	"Airlie":                     10184,
 	"Airport Industria":          11637,
