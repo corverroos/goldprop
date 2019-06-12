@@ -1,4 +1,4 @@
-package main
+package p24
 
 import (
 	"fmt"
@@ -17,7 +17,7 @@ type area struct {
 	code int
 }
 
-func main() {
+func GenAreas() error {
 	areas := make(map[int]area)
 	
 	c := colly.NewCollector(
@@ -62,15 +62,18 @@ func main() {
 			area: suburb,
 			code: c,
 		}
-		err = s.Visit(link)
-		if err != nil {
-			log.Fatalf("error visiting suburb: %v", err)
-		}
+		s.Visit(link)
+	})
+
+	var anyErr error
+	c.OnError(func(r *colly.Response, e error) {
+		log.Printf("Error on %v: %v",r.Request.URL, e)
+		anyErr = e
 	})
 
 	err := c.Visit(start)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	var al []area
@@ -82,7 +85,15 @@ func main() {
 		return al[i].area < al[j].area
 	})
 
+	var sb strings.Builder
+	sb.WriteString("package p24\n")
+	sb.WriteString("\n")
+	sb.WriteString("//Code genereated with goldporp p24 genareas. DO NOT EDIT.\n")
+	sb.WriteString("var Areas = map[string]int{\n")
 	for _, a := range al {
-		fmt.Printf("\"%s\":%d,\n",a.area,a.code)
+		sb.WriteString(fmt.Sprintf("\"%s\":%d,\n",strings.ToLower(a.area),a.code))
 	}
+	fmt.Print(sb.String())
+
+	return anyErr
 }
